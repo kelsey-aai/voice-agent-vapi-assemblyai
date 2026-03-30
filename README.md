@@ -44,7 +44,7 @@ This creates a fully configured assistant:
 ## Quick start
 
 ```bash
-git clone https://github.com/AssemblyAI/voice-agent-vapi-assemblyai
+git clone https://github.com/kelseyefoster/voice-agent-vapi-assemblyai
 cd voice-agent-vapi-assemblyai
 
 pip install -r requirements.txt
