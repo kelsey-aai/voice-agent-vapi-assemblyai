@@ -1,6 +1,6 @@
-# Vapi voice agent with AssemblyAI Universal Streaming
+# Vapi voice agent with AssemblyAI Universal-3.5 Pro Realtime
 
-Use **AssemblyAI Universal Streaming** as the speech-to-text engine inside your Vapi voice agent — and get neural turn detection, keyterm prompting, and 307ms P50 latency inside Vapi's managed voice platform.
+Use **AssemblyAI Universal-3.5 Pro Realtime** as the speech-to-text engine inside your Vapi voice agent — and get punctuation-based turn detection, keyterm prompting, and ~150 ms P50 latency (6.99% WER on Pipecat's open benchmark) inside Vapi's managed voice platform.
 
 ## What is Vapi?
 
@@ -18,7 +18,7 @@ Vapi handles telephony, turn-taking, and orchestration so you don't have to. It 
 
 1. Click **Create Assistant**
 2. Under **Transcriber**, select **Assembly AI**
-3. Toggle on **Universal Streaming API**
+3. Under **Model**, select **universal-3-5-pro** (Universal-3.5 Pro Realtime)
 4. Save and test via the web call button
 
 ### Step 3 — Create an assistant (API)
@@ -33,7 +33,7 @@ This creates a fully configured assistant:
 {
   "transcriber": {
     "provider": "assembly-ai",
-    "model": "universal",
+    "model": "universal-3-5-pro",
     "language": "en",
     "keytermsPrompt": ["YourBrand", "SpecialTerm"],
     "confidenceThreshold": 0.4
@@ -44,7 +44,7 @@ This creates a fully configured assistant:
 ## Quick start
 
 ```bash
-git clone https://github.com/kelseyefoster/voice-agent-vapi-assemblyai
+git clone https://github.com/kelsey-aai/voice-agent-vapi-assemblyai
 cd voice-agent-vapi-assemblyai
 
 pip install -r requirements.txt
@@ -78,21 +78,22 @@ Up to 100 keyterms, each up to 50 characters. Takes effect immediately on the ne
 
 ## Supported languages
 
-English (default), Spanish, French, German, Italian, Portuguese:
+Universal-3.5 Pro Realtime supports 18 languages — including English, Spanish, French, German, Italian, and Portuguese — with native mid-sentence code-switching:
 
 ```json
-{ "transcriber": { "provider": "assembly-ai", "model": "universal", "language": "es" } }
+{ "transcriber": { "provider": "assembly-ai", "model": "universal-3-5-pro", "language": "es" } }
 ```
 
 ## When to choose AssemblyAI over Deepgram in Vapi
 
 | Use case | Recommended |
 |----------|-------------|
-| Fastest possible streaming latency | AssemblyAI Universal-3 Pro (307ms P50) |
-| Account numbers, serial codes | AssemblyAI (+21% fewer alphanumeric errors) |
-| Medical or clinical terminology | AssemblyAI (keyterm prompting) |
-| Interruption handling | AssemblyAI (neural turn detection) |
-| Multilingual callers | AssemblyAI (auto language detection) |
+| Accuracy on real agent conversations | AssemblyAI Universal-3.5 Pro Realtime (6.99% WER on Pipecat's open benchmark) |
+| Low-latency streaming transcripts | AssemblyAI (~150 ms P50, partial + final) |
+| Account numbers, serial codes, emails | AssemblyAI (strong entity accuracy) |
+| Medical or clinical terminology | AssemblyAI (included keyterm prompting) |
+| Sharper answers to the agent's questions | AssemblyAI (Context Carryover) |
+| Multilingual callers | AssemblyAI (18 languages, native code-switching) |
 
 ## Related tutorials
 
@@ -111,7 +112,7 @@ English (default), Spanish, French, German, Italian, Portuguese:
 <div class="blog-cta_component">
   <div class="blog-cta_title">Switch your Vapi agent to AssemblyAI</div>
   <div class="blog-cta_rt w-richtext">
-    <p>Sign up for a free AssemblyAI account, add your key to Vapi's dashboard, and enable Universal Streaming in minutes.</p>
+    <p>Sign up for a free AssemblyAI account, add your key to Vapi's dashboard, and enable Universal-3.5 Pro Realtime in minutes.</p>
   </div>
   <a href="https://www.assemblyai.com/dashboard/signup" class="button w-button">Start building</a>
 </div>
@@ -119,7 +120,7 @@ English (default), Spanish, French, German, Italian, Portuguese:
 <div class="blog-cta_component">
   <div class="blog-cta_title">Experiment with real-time turn detection</div>
   <div class="blog-cta_rt w-richtext">
-    <p>Try streaming transcription in our Playground and observe how punctuation and silence handling shape turn boundaries in real time. Compare behaviors across Universal-3 Pro Streaming and Universal-streaming models.</p>
+    <p>Try streaming transcription in our Playground and observe how punctuation and silence handling shape turn boundaries in real time. Compare behaviors across Universal-3.5 Pro Realtime and Universal-streaming models.</p>
   </div>
   <a href="https://www.assemblyai.com/playground" class="button w-button">Open playground</a>
 </div>

@@ -3,7 +3,7 @@ Create a Vapi voice assistant using AssemblyAI as the transcriber.
 
 Demonstrates:
   - Creating an assistant via the Vapi REST API
-  - Configuring AssemblyAI Universal Streaming as the transcriber
+  - Configuring AssemblyAI Universal-3.5 Pro Realtime as the transcriber
   - Keyterm prompting for domain-specific vocabulary
   - Making an outbound test call
 """
@@ -24,17 +24,17 @@ BASE_URL = "https://api.vapi.ai"
 
 
 def create_assistant(name: str = "AssemblyAI Demo Assistant") -> dict:
-    """Create a Vapi assistant with AssemblyAI Universal Streaming as STT."""
+    """Create a Vapi assistant with AssemblyAI Universal-3.5 Pro Realtime as STT."""
 
     payload = {
         "name": name,
 
-        # ── STT: AssemblyAI Universal Streaming ───────────────────────────
-        # Use "assembly-ai" provider + "universal" model to enable
-        # Universal-3 Pro Streaming (toggle on in dashboard, or set via API).
+        # ── STT: AssemblyAI Universal-3.5 Pro Realtime ────────────────────
+        # Use "assembly-ai" provider + "universal-3-5-pro" model to enable
+        # Universal-3.5 Pro Realtime (select in dashboard, or set via API).
         "transcriber": {
             "provider": "assembly-ai",
-            "model": "universal",
+            "model": "universal-3-5-pro",
             "language": "en",
             # Boost recognition for domain-specific terms (up to 100 keyterms).
             # Each term: up to 50 characters. Optional soundsLike for phonetics.
