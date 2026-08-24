@@ -34,7 +34,7 @@ def create_assistant(name: str = "AssemblyAI Demo Assistant") -> dict:
         # Universal-3.5 Pro Realtime (select in dashboard, or set via API).
         "transcriber": {
             "provider": "assembly-ai",
-            "model": "universal-3-5-pro",
+            "speechModel": "universal-3-5-pro",
             "language": "en",
             # Boost recognition for domain-specific terms (up to 100 keyterms).
             # Each term: up to 50 characters. Optional soundsLike for phonetics.
@@ -43,7 +43,8 @@ def create_assistant(name: str = "AssemblyAI Demo Assistant") -> dict:
                 "Universal-3",
                 "voice agent",
             ],
-            # Emit turn when end-of-turn confidence passes this threshold.
+            # Vapi-side floor for accepting a transcript fragment. This is
+            # not AssemblyAI's end-of-turn threshold.
             "confidenceThreshold": 0.4,
         },
 

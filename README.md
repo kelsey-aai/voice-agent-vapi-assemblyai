@@ -33,7 +33,7 @@ This creates a fully configured assistant:
 {
   "transcriber": {
     "provider": "assembly-ai",
-    "model": "universal-3-5-pro",
+    "speechModel": "universal-3-5-pro",
     "language": "en",
     "keytermsPrompt": ["YourBrand", "SpecialTerm"],
     "confidenceThreshold": 0.4
@@ -81,7 +81,7 @@ Up to 100 keyterms, each up to 50 characters. Takes effect immediately on the ne
 Universal-3.5 Pro Realtime supports 18 languages — including English, Spanish, French, German, Italian, and Portuguese — with native mid-sentence code-switching:
 
 ```json
-{ "transcriber": { "provider": "assembly-ai", "model": "universal-3-5-pro", "language": "es" } }
+{ "transcriber": { "provider": "assembly-ai", "speechModel": "universal-3-5-pro", "languageCodes": ["es"] } }
 ```
 
 ## When to choose AssemblyAI over Deepgram in Vapi
