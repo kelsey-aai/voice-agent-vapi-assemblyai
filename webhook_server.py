@@ -67,7 +67,7 @@ async def handle_call_end(msg: dict):
 
 
 async def handle_transcript(msg: dict):
-    """Real-time transcript from AssemblyAI Universal-3.5 Pro Realtime."""
+    """Real-time transcript from AssemblyAI Universal-3.6 Pro Realtime."""
     role = msg.get("role")          # "user" or "assistant"
     transcript = msg.get("transcript")
     transcript_type = msg.get("transcriptType")  # "partial" or "final"
