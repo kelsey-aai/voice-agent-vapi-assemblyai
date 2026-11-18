@@ -1,11 +1,17 @@
 """
-Create a Vapi voice assistant using AssemblyAI as the transcriber.
+Create a Vapi voice assistant that uses AssemblyAI for speech-to-text.
 
-Demonstrates:
-  - Creating an assistant via the Vapi REST API
-  - Configuring AssemblyAI Universal-3.6 Pro Realtime as the transcriber
-  - Keyterm prompting for domain-specific vocabulary
-  - Making an outbound test call
+Two transcriber options:
+  builtin  Vapi's AssemblyAI provider ("assembly-ai"). As of Nov 16, 2026 it lists
+           universal-3-6-pro (Universal-3.6 Pro Realtime, the previous flagship,
+           still fully supported) and universal-3-5-pro.
+  custom   Vapi's custom transcriber, pointed at custom_transcriber.py, which
+           streams the caller's audio to AssemblyAI STT 3.7 Realtime Agent
+           (assemblyai-stt-3-7-realtime-agent).
+
+Usage:
+  python create_assistant.py create --transcriber custom
+  python create_assistant.py call --assistant-id <id> --phone +1XXXXXXXXXX
 """
 
 import os
@@ -22,31 +28,40 @@ HEADERS = {
 }
 BASE_URL = "https://api.vapi.ai"
 
+FIRST_MESSAGE = "Hi, thanks for calling Acme Insurance. Can I get your policy number?"
+KEYTERMS = ["Acme Insurance", "Gold plan", "deductible", "prior authorization"]
 
-def create_assistant(name: str = "AssemblyAI Demo Assistant") -> dict:
-    """Create a Vapi assistant with AssemblyAI Universal-3.6 Pro Realtime as STT."""
+
+def builtin_transcriber() -> dict:
+    """Vapi's built-in AssemblyAI provider (fields from Vapi's AssemblyAI docs)."""
+    return {
+        "provider": "assembly-ai",
+        "speechModel": "universal-3-6-pro",
+        "mode": "balanced",
+        "keytermsPrompt": KEYTERMS,
+        # Seed the first turn with the greeting, then let Vapi send each
+        # assistant reply to AssemblyAI as agent context automatically.
+        "agentContext": FIRST_MESSAGE,
+        "agentContextAutoUpdateEnabled": True,
+    }
+
+
+def custom_transcriber() -> dict:
+    """Vapi custom transcriber -> custom_transcriber.py -> AssemblyAI STT 3.7 Realtime Agent."""
+    server = {"url": os.environ["CUSTOM_TRANSCRIBER_URL"]}  # wss://<host>/api/custom-transcriber
+    if os.getenv("TRANSCRIBER_SECRET"):
+        server["headers"] = {"x-transcriber-secret": os.environ["TRANSCRIBER_SECRET"]}
+    return {"provider": "custom-transcriber", "server": server}
+
+
+def create_assistant(transcriber: str = "custom", name: str = "AssemblyAI Demo Assistant") -> dict:
+    """Create a Vapi assistant with AssemblyAI as the transcriber."""
 
     payload = {
         "name": name,
 
-        # ── STT: AssemblyAI Universal-3.6 Pro Realtime ────────────────────
-        # Use "assembly-ai" provider + "universal-3-6-pro" model to enable
-        # Universal-3.6 Pro Realtime (select in dashboard, or set via API).
-        "transcriber": {
-            "provider": "assembly-ai",
-            "speechModel": "universal-3-6-pro",
-            "language": "en",
-            # Boost recognition for domain-specific terms (up to 100 keyterms).
-            # Each term: up to 50 characters. Optional soundsLike for phonetics.
-            "keytermsPrompt": [
-                "AssemblyAI",
-                "Universal-3.6",
-                "voice agent",
-            ],
-            # Vapi-side floor for accepting a transcript fragment. This is
-            # not AssemblyAI's end-of-turn threshold.
-            "confidenceThreshold": 0.4,
-        },
+        # ── STT: AssemblyAI ───────────────────────────────────────────────
+        "transcriber": custom_transcriber() if transcriber == "custom" else builtin_transcriber(),
 
         # ── LLM ───────────────────────────────────────────────────────────
         "model": {
@@ -56,9 +71,9 @@ def create_assistant(name: str = "AssemblyAI Demo Assistant") -> dict:
                 {
                     "role": "system",
                     "content": (
-                        "You are a friendly, helpful voice assistant. "
+                        "You are a friendly, helpful phone assistant for Acme Insurance. "
                         "Keep every response under 2–3 sentences. "
-                        "Speak naturally — no markdown or lists."
+                        "Speak naturally, with no markdown or lists."
                     ),
                 }
             ],
@@ -66,21 +81,11 @@ def create_assistant(name: str = "AssemblyAI Demo Assistant") -> dict:
             "maxTokens": 200,
         },
 
-        # ── TTS ───────────────────────────────────────────────────────────
-        "voice": {
-            "provider": "playht",
-            "voiceId": "jennifer",
-        },
-
         # ── Call behaviour ────────────────────────────────────────────────
-        "firstMessage": "Hi! I'm your AI assistant powered by AssemblyAI. How can I help you today?",
+        "firstMessage": FIRST_MESSAGE,
         "endCallMessage": "Thanks for calling. Have a great day!",
         "endCallPhrases": ["goodbye", "bye", "hang up", "end call"],
-
-        # ── Silence / interruption ────────────────────────────────────────
-        "silenceTimeoutSeconds": 30,
         "maxDurationSeconds": 600,
-        "backgroundDenoisingEnabled": True,
     }
 
     resp = requests.post(f"{BASE_URL}/assistant", headers=HEADERS, json=payload)
@@ -106,7 +111,7 @@ def make_outbound_call(phone_number: str, assistant_id: str) -> dict:
         },
     }
 
-    resp = requests.post(f"{BASE_URL}/call/phone", headers=HEADERS, json=payload)
+    resp = requests.post(f"{BASE_URL}/call", headers=HEADERS, json=payload)
     resp.raise_for_status()
     call = resp.json()
     print(f"📞 Call initiated: {call['id']}")
@@ -134,7 +139,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
 
-    subparsers.add_parser("create", help="Create a new assistant")
+    create_parser = subparsers.add_parser("create", help="Create a new assistant")
+    create_parser.add_argument("--transcriber", choices=["custom", "builtin"], default="custom")
 
     call_parser = subparsers.add_parser("call", help="Make an outbound call")
     call_parser.add_argument("--assistant-id", required=True)
@@ -146,7 +152,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.command == "create":
-        create_assistant()
+        create_assistant(args.transcriber)
     elif args.command == "call":
         make_outbound_call(args.phone, args.assistant_id)
     elif args.command == "list-calls":
