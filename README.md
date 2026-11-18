@@ -176,7 +176,8 @@ def assemblyai_url(sample_rate: int) -> str:
         ("encoding", "pcm_s16le"),
         ("sample_rate", sample_rate),
     ]
-    params += [("keyterms_prompt", term) for term in KEYTERMS]
+    if KEYTERMS:
+        params.append(("keyterms_prompt", json.dumps(KEYTERMS)))
     return f"wss://streaming.assemblyai.com/v3/ws?{urlencode(params)}"
 
 
